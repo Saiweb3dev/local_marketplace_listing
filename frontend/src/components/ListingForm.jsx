@@ -5,7 +5,7 @@ import { useAuth } from '../app/hooks/useAuth';
 
 const categories = ['Furniture', 'Electronics', 'Fashion', 'Books', 'Sports', 'Others'];
 
-export default function ListingForm() {
+export default function ListingForm({ onListingCreated }) {
   const { isAuthenticated, user ,token} = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -47,8 +47,10 @@ export default function ListingForm() {
         images: []
       });
       
-      // If you need to do something with the response (like navigate to the new listing)
-      console.log("Listing created:", response);
+      // Call the callback to refresh listings
+      if (onListingCreated) {
+        onListingCreated();
+      }
     } catch (err) {
       setError(err.message || "Failed to create listing. Please try again.");
     } finally {

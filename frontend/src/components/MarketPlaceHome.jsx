@@ -1,10 +1,11 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import AuthModal from './AuthModal';
 import ListingCard from './ListingCard';
 import ListingForm from './ListingForm';
 import { useAuth } from '../app/hooks/useAuth';
+import { getListings } from '../app/services/api';
 
 
 export default function MarketplaceHome() {
@@ -12,19 +13,9 @@ export default function MarketplaceHome() {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '' });
-
-
-  const [listings, setListings] = useState([
-    {
-      title: "Vintage Leather Sofa",
-      description: "Comfortable and in great condition",
-      location: "Chennai",
-      price: 15000,
-      category: "Furniture",
-      images: ["sofa1.jpg", "sofa2.jpg"],
-      seller: "john@example.com"
-    }
-  ]);
+  const [listings, setListings] = useState([]);
+  const [listingsLoading, setListingsLoading] = useState(true);
+  const [listingsError, setListingsError] = useState(null);
 
 
   const handleAuth = async (e) => {
@@ -40,6 +31,35 @@ export default function MarketplaceHome() {
       console.log("Error during authentication:", error);
     }
   };
+
+    // Function to fetch listings
+    const fetchListings = async () => {
+      try {
+        console.log('Fetching listings from API...');
+        const data = await getListings();
+        setListings(data);
+        setListingsError(null);
+      } catch (error) {
+        console.error('Error fetching listings:', error);
+        setListingsError('Failed to load listings. Please try again later.');
+      } finally {
+        setListingsLoading(false);
+      }
+    };
+
+      // Initial fetch and set up interval for refreshing
+  useEffect(() => {
+    // Fetch listings immediately on component mount
+    fetchListings();
+    
+    // Set up interval to fetch listings every 5 seconds
+    const intervalId = setInterval(() => {
+      fetchListings();
+    }, 5000);
+    console.log("Fetching listings every 5 seconds");
+    // Clean up interval when component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
 
 
   return (
@@ -69,16 +89,35 @@ export default function MarketplaceHome() {
       </div>
 
       {/* Listing Form */}
-      <ListingForm/>
+      <ListingForm onListingCreated={fetchListings}/>
 
       {/* Listings */}
       <div className="max-w-6xl mx-auto mt-12 p-6">
         <h2 className="text-2xl text-black font-semibold mb-6">Latest Listings</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.map((listing, idx) => (
-            <ListingCard key={idx} listing={listing} />
-          ))}
-        </div>
+        
+        {listingsError && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {listingsError}
+          </div>
+        )}
+        
+        {listingsLoading && listings.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading listings...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {listings.length > 0 ? (
+              listings.map((listing, idx) => (
+                <ListingCard key={idx} listing={listing} />
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-8">
+                <p className="text-gray-600">No listings available yet.</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <AuthModal

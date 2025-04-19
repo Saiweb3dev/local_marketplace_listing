@@ -50,4 +50,13 @@ export const createListing = async (listingData, token) => {
   }
 }
 
+export const getListings = async () => {
+  try {
+    const response = await api.get('/listings');
+    return response.data.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Failed to fetch listings' };
+  }
+};
+
 export default api;
