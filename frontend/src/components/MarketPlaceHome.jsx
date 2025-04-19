@@ -3,17 +3,17 @@ import { useState } from 'react';
 import Navbar from './Navbar';
 import AuthModal from './AuthModal';
 import ListingCard from './ListingCard';
+import { useAuth } from '../app/hooks/useAuth';
 
 const categories = ['Furniture', 'Electronics', 'Fashion', 'Books', 'Sports', 'Others'];
 
 export default function MarketplaceHome() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, user, authError, isLoading, login, register, logout } = useAuth();
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authError, setAuthError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [authForm, setAuthForm] = useState({ name: '', email: '', password: '' });
 
-  const [user, setUser] = useState({ email: '', password: '' });
+
   const [listings, setListings] = useState([
     {
       title: "Vintage Leather Sofa",
@@ -38,16 +38,15 @@ export default function MarketplaceHome() {
 
   const handleAuth = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setAuthError('');
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setIsAuthenticated(true);
+      if (isLoginMode) {
+        await login(authForm);
+      } else {
+        await register(authForm);
+      }
       setShowAuthModal(false);
-    } catch {
-      setAuthError('Authentication failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.log("Error during authentication:", error);
     }
   };
 
@@ -74,10 +73,7 @@ export default function MarketplaceHome() {
       <Navbar
         isAuthenticated={isAuthenticated}
         user={user}
-        onLogout={() => {
-          setIsAuthenticated(false);
-          setUser({ email: '', password: '' });
-        }}
+        onLogout={logout}
         onAuthOpen={() => setShowAuthModal(true)}
       />
 
@@ -168,8 +164,8 @@ export default function MarketplaceHome() {
         onSubmit={handleAuth}
         isLoginMode={isLoginMode}
         toggleMode={() => setIsLoginMode(!isLoginMode)}
-        user={user}
-        setUser={setUser}
+        user={authForm}
+        setUser={setAuthForm}
         authError={authError}
         isLoading={isLoading}
       />

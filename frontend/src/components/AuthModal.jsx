@@ -18,6 +18,17 @@ export default function AuthModal({
           {isLoginMode ? 'Login' : 'Sign Up'}
         </h2>
         <form onSubmit={onSubmit} className="space-y-4">
+          {/* Name field - only shown in Sign Up mode */}
+          {!isLoginMode && (
+            <input
+              type="text"
+              value={user.name || ''}
+              onChange={(e) => setUser({ ...user, name: e.target.value })}
+              placeholder="Full Name"
+              className="w-full px-4 py-2 border rounded-lg"
+              required
+            />
+          )}
           <input
             type="email"
             value={user.email}
