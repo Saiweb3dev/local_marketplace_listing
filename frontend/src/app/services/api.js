@@ -59,4 +59,41 @@ export const getListings = async () => {
   }
 };
 
+// Get listing by ID
+export const getListingById = async (id) => {
+  try {
+    const response = await api.get(`/listings/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: `Failed to fetch listing #${id}` };
+  }
+};
+
+// Update listing
+export const updateListing = async (id, listingData, token) => {
+  try {
+    const response = await api.put(`/listings/${id}`, listingData, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Failed to update listing' };
+  }
+};
+
+// Delete listing
+export const deleteListing = async (id, token) => {
+  try {
+    const response = await api.delete(`/listings/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Failed to delete listing' };
+  }
+};
 export default api;
