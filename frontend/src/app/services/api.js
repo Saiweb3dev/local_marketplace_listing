@@ -37,4 +37,17 @@ export const loginUser = async (credentials) => {
   }
 };
 
+export const createListing = async (listingData, token) => {
+  try {
+    const response = await api.post('listings', listingData, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Failed to create listing' };
+  }
+}
+
 export default api;

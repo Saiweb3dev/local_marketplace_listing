@@ -3,9 +3,9 @@ import { useState } from 'react';
 import Navbar from './Navbar';
 import AuthModal from './AuthModal';
 import ListingCard from './ListingCard';
+import ListingForm from './ListingForm';
 import { useAuth } from '../app/hooks/useAuth';
 
-const categories = ['Furniture', 'Electronics', 'Fashion', 'Books', 'Sports', 'Others'];
 
 export default function MarketplaceHome() {
   const { isAuthenticated, user, authError, isLoading, login, register, logout } = useAuth();
@@ -26,15 +26,6 @@ export default function MarketplaceHome() {
     }
   ]);
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    location: "",
-    price: 0,
-    category: "",
-    images: [],
-    seller: ""
-  });
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -50,23 +41,6 @@ export default function MarketplaceHome() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-    setListings([...listings, { ...formData, seller: user.email }]);
-    setFormData({
-      title: "",
-      description: "",
-      location: "",
-      price: 0,
-      category: "",
-      images: [],
-      seller: ""
-    });
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -94,59 +68,8 @@ export default function MarketplaceHome() {
         </div>
       </div>
 
-      {/* Add Listing Form */}
-      <div className="max-w-2xl mx-auto mt-12 p-6 bg-black rounded-xl shadow-md">
-        <h2 className="text-2xl font-semibold mb-6">Add New Listing</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Title"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          />
-          <textarea
-            placeholder="Description"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="Location"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="px-4 py-2 border rounded-lg"
-              required
-            />
-            <input
-              type="number"
-              placeholder="Price"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-              className="px-4 py-2 border rounded-lg"
-              required
-            />
-          </div>
-          <select
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg"
-            required
-          >
-            <option value="">Select a category</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg">
-            {isAuthenticated ? 'Add Listing' : 'Login to Add Listing'}
-          </button>
-        </form>
-      </div>
+      {/* Listing Form */}
+      <ListingForm/>
 
       {/* Listings */}
       <div className="max-w-6xl mx-auto mt-12 p-6">
